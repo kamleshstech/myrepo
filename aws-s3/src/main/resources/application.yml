@@ -1,0 +1,18 @@
+spring:
+ application:
+  name: aws-s3
+  
+ datasource:
+    url: jdbc:mysql://localhost:3306/filesdb
+    username: root
+    password: root
+ jpa:
+    hibernate:
+      ddl-auto: update
+
+aws:
+ s3:
+   bucket: my-prod-bucket-name
+   
+server:
+  port: 8082
