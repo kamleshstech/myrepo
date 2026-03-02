@@ -1,0 +1,10 @@
+spring:
+ application:
+  name: AWS-S3-One
+ profiles:
+  active: dev
+ 
+ servlet:
+  multipart:
+   max-file-size: 10MB
+   

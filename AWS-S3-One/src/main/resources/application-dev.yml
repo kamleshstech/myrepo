@@ -1,0 +1,15 @@
+#This force App to talk to your docker container instead of real AWS 
+
+spring:
+ cloud:
+  aws:
+   region: 
+    static: ap-south-1
+   
+   credentials:
+    access-key: test
+    secret-key: test
+   
+   s3: 
+    endpoint: http://localhost:4566
+    path-style-access-enabled: true

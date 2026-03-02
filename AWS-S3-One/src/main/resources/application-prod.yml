@@ -1,0 +1,8 @@
+#In production, we remove the endpoint and keys, AWS will use the IAM Role attached to your EC2/ECS instance 
+
+spring:
+ cloud:
+  aws:
+   region:
+    static: ap-south-1
+  
