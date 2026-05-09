@@ -36,7 +36,8 @@ public class ProductController {
 		//return ResponseEntity.ok(productService.getProducts()); Basic GET API No pagination
 		
 		//Page<ProductDTO> pageOfProduct = productService.getProducts(pageable);
-		
+
+		//customized response
 		PaginatedResponse<ProductDTO> customizedResp = productService.getProducts(pageable); 
 		return new ResponseEntity<>(customizedResp, HttpStatus.OK); 
 	}
