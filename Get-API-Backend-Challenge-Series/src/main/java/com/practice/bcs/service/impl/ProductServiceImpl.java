@@ -5,11 +5,16 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.practice.bcs.dto.PaginatedResponse;
 import com.practice.bcs.dto.ProductDTO;
+import com.practice.bcs.dto.ProductSpecification;
 import com.practice.bcs.entity.MetaData;
 import com.practice.bcs.entity.Product;
 import com.practice.bcs.repository.ProductRepository;
@@ -47,7 +52,7 @@ public class ProductServiceImpl implements IProduct{
 	public PaginatedResponse<ProductDTO> getProducts(Pageable pageble) {
 		Page<Product> productPage = productRepository.findAll(pageble);
 		
-		List<ProductDTO> productDtoList = productPage.getContent().stream()
+/*		List<ProductDTO> productDtoList = productPage.getContent().stream()
 				.map(product -> modelMapper.map(product, ProductDTO.class)).toList();
 		
 		PaginatedResponse<ProductDTO> paginatedResponse = PaginatedResponse.<ProductDTO>builder()
@@ -59,10 +64,45 @@ public class ProductServiceImpl implements IProduct{
 				.isLast(productPage.isLast())
 				.items(productDtoList) 
 				.build();
-				
-			return paginatedResponse;
+	*/
+		//PaginatedResponse<ProductDTO> paginatedResponse = convertToPaginateResp(productPage);
+		
+			return convertToPaginateResp(productPage);
 	}
 	
+	
+	@Override
+	public PaginatedResponse<ProductDTO> searchProduct(String keyword, int pageNo, int size) {
+		Specification<Product> searchSpec = Specification.where(ProductSpecification.searchProduct(keyword));
+		Pageable pageable = PageRequest.of(pageNo, size);
+		Page<Product> productPage = productRepository.findAll(searchSpec, pageable);
+		
+		return convertToPaginateResp(productPage); 
+	}
+
+	@Override
+	public PaginatedResponse<ProductDTO> filterProductByPriceRange(Double min, Double max, int pageNo, int size) {
+		Specification<Product> priceBetweenSpec = Specification.where(ProductSpecification.productByPriceBetween(min, max));
+		Pageable pageable = PageRequest.of(pageNo, size);
+		Page<Product> productPage = productRepository.findAll(priceBetweenSpec, pageable);
+		
+		return convertToPaginateResp(productPage);
+	}
+
+	@Override
+	public PaginatedResponse<ProductDTO> searchProductBetweenPriceRange(String keyword, Double min, Double max,
+			int pageNo, int size, String sortBy, String direction) {
+		Specification<Product> searchPriceBetweenSpec = 
+				Specification.where(ProductSpecification.searchProduct(keyword)).and(ProductSpecification.productByPriceBetween(min, max));
+		
+		Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
+		
+		Pageable pageable = PageRequest.of(pageNo, size, sort);
+		
+		Page<Product> productPage = productRepository.findAll(searchPriceBetweenSpec, pageable);
+		
+		return convertToPaginateResp(productPage); 
+	}
 	
 	@Override
 	public Product createProduct(Product product) {
@@ -89,6 +129,21 @@ public class ProductServiceImpl implements IProduct{
 		
 		return productRepository.save(product);
 		
+	}	
+	private PaginatedResponse<ProductDTO> convertToPaginateResp(Page<Product> productPage){
+		List<ProductDTO> prodDtoList 
+			= productPage.getContent().stream().map(product -> modelMapper.map(product, ProductDTO.class)).toList();
+		
+		PaginatedResponse<ProductDTO> paginatedResponse = PaginatedResponse.<ProductDTO>builder()
+				.totalElements(productPage.getTotalElements())
+				.totalPages(productPage.getTotalPages())
+				.currentPage(productPage.getNumber())
+				.pageSize(productPage.getSize())
+				.isFirst(productPage.isFirst())
+				.isLast(productPage.isLast())
+				.items(prodDtoList)
+				.build();
+				
+		return paginatedResponse; 
 	}
-	
 }
