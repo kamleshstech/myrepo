@@ -1,0 +1,19 @@
+spring:
+ application:
+    name: LogTraceAppOne
+server: 
+ port: 8081
+management:
+ tracing:
+  sampling:
+   probability: 1.0 #1.0->Trace 100% of requests||0.5->Trace 50% of requests |0.1->10%|0.0->nothing
+ zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans #This tells Spring Boot:👉 Where to send trace data 
+                                                   #Uses Zipkin HTTP v2 API Sends spans as JSON
+                                                   #Zipkin collects, stores, and visualizes them
+#Why /api/v2/spans? ->>>> Zipkin exposes this endpoint to: Accept spans From services using Brave / Micrometer 
+#Over HTTP POST 💡 This is not a UI URL, it’s a collector API.
+logging:
+  file:
+    name: d:/M/abcApp.log
